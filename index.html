@@ -31,7 +31,6 @@ html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
 body{margin:0;font:400 17px/1.6 "IBM Plex Sans",system-ui,sans-serif}
 a{color:var(--link);text-underline-offset:.2em;text-decoration-thickness:1px;
   text-decoration-color:var(--underline)}
-a:hover{text-decoration-thickness:2px}
 :focus-visible{outline:3px solid var(--pen);outline-offset:3px;border-radius:2px}
 .page{max-width:1180px;margin:0 auto;padding:0 var(--gutter)}
 .top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:28px 0 0}
@@ -53,7 +52,6 @@ h1{font:700 clamp(36px,5.2vw,64px)/1.05 "Playfair Display",Georgia,serif;letter-
 .play svg{width:18px;height:18px;fill:currentColor}
 @media (max-width:760px){.play span{padding:8px 14px 8px 11px;font-size:14px;gap:7px}
   .play svg{width:14px;height:14px}}
-.play:hover span{background:var(--pill-hover)}
 .caption{font-size:15px;color:var(--slate);margin:12px 0 0}
 h2{font:700 clamp(28px,3vw,40px)/1.15 "Playfair Display",Georgia,serif;letter-spacing:-.015em;
   margin:0}
@@ -88,10 +86,17 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
   font:700 15px/1 "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
 .theme svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
   stroke-linecap:round;stroke-linejoin:round}
-.theme:hover{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
 .theme[hidden],.theme svg[hidden]{display:none}
+a{transition:text-decoration-thickness .15s ease-out}
+.play span,.theme{transition:background-color .15s ease-out,color .15s ease-out,
+  border-color .15s ease-out}
+@media (hover:hover) and (pointer:fine){
+  a:hover{text-decoration-thickness:2px}
+  .play:hover span{background:var(--pill-hover)}
+  .theme:hover{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}
-  html.theme-fade,html.theme-fade *{transition:none}}
+  a,.play span,.theme,html.theme-fade,html.theme-fade *{transition:none}}
 @media print{:root:not([data-theme=none]){--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--step:#F2C14E;--step-ink:#1B1B1F}.theme{display:none!important}}
 </style>
 </head>
