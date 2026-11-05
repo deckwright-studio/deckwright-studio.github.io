@@ -84,18 +84,27 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
 .theme{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 12px;
   border:1px solid var(--pen);border-radius:999px;background:var(--well);color:var(--ink);
   font:700 15px/1 "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
-.theme span{display:inline-block;min-width:2.6em}
+.theme .word{display:inline-grid;min-width:2.6em}
+.theme .word > span{grid-area:1/1}
+.theme .word .ghost{opacity:0}
 .theme .icon{width:18px;height:18px;overflow:visible}
-.theme .disc{transform-origin:12px 12px;transition:transform .3s cubic-bezier(.65,0,.35,1)}
-.theme .cut{transition:transform .3s cubic-bezier(.65,0,.35,1)}
+/* Превращение (05.11, второй заход): медленнее и одной мягкой кривой у всех трёх частей —
+   лучи гасли втрое быстрее, чем рос диск, и пропадали посреди хода (замер по кадрам). */
+.theme{--morph:.55s cubic-bezier(.37,0,.63,1)}
+.theme .disc{transform-origin:12px 12px;transition:transform var(--morph)}
+.theme .cut{transition:transform var(--morph)}
 .theme .rays{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;
-  transform-origin:12px 12px;transition:transform .26s ease-out .06s,opacity .2s ease-out .06s}
+  transform-origin:12px 12px;transition:transform var(--morph) .08s,opacity var(--morph) .08s}
 .theme[data-next=dark] .disc{transform:scale(1.75)}
 .theme[data-next=dark] .cut{transform:translate(-9px,7px)}
 .theme[data-next=dark] .rays{transform:rotate(-45deg) scale(.5);opacity:0;
-  transition:transform .18s ease-in,opacity .15s ease-in}
-@keyframes theme-word{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
-.theme span.swap{animation:theme-word .18s ease-out}
+  transition:transform var(--morph),opacity var(--morph)}
+/* Слово меняется, как надпись у «Deg» в калькуляторе (выбор заказчика 09.10 там же; здесь —
+   заказчик 05.11): новое выезжает слева на полкегля за 0.35 с, прежнее гаснет на месте. */
+@keyframes theme-word-in{from{opacity:0;transform:translateX(-.5em)}}
+@keyframes theme-word-out{from{opacity:1}to{opacity:0}}
+.theme .word .now.swap{animation:theme-word-in .35s ease both}
+.theme .word .ghost.swap{animation:theme-word-out .35s ease both}
 .theme.is-pressed{background:var(--pill);color:var(--pill-ink);border-color:var(--pill);
   transition-duration:.08s}
 .theme[hidden]{display:none}
@@ -109,7 +118,7 @@ a{transition:text-decoration-thickness .15s ease-out}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}
   a,.play span,.theme,.theme *,html.theme-fade,html.theme-fade *{transition:none!important}
-  .theme span.swap{animation:none}}
+  .theme .word .now.swap,.theme .word .ghost.swap{animation:none}}
 @media print{:root:not([data-theme=none]){--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--step:#F2C14E;--step-ink:#1B1B1F}.theme{display:none!important}}
 </style>
 </head>
@@ -117,7 +126,9 @@ a{transition:text-decoration-thickness .15s ease-out}
 <div class="page">
 <header class="top"><a class="mark" href="./">Deckwright Studio</a>
 <div class="top-right">
-<button class="theme" type="button" data-next="dark" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><mask id="theme-cut"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="26" cy="0" r="6" fill="#000"/></mask><g mask="url(#theme-cut)"><circle class="disc" cx="12" cy="12" r="5" fill="currentColor"/></g><path class="rays" d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><span>Dark</span></button>
+<button class="theme" type="button" data-next="dark" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><mask id="theme-cut"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="26" cy="0" r="6" fill="#000"/></mask><g mask="url(#theme-cut)"><circle class="disc" cx="12" cy="12" r="5" fill="currentColor"/></g><path class="rays" d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+<span class="word"><span class="now">Dark</span>
+<span class="ghost" aria-hidden="true"></span></span></button>
 <a href="mailto:deckwright.studio@gmail.com">Write to us</a></div></header>
 <main>
 <section class="hero">
@@ -185,14 +196,18 @@ document.addEventListener('click', function (event) {
   function current() { return root.dataset.theme || (dark.matches ? 'dark' : 'light'); }
   function label() {
     var next = current() === 'dark' ? 'light' : 'dark';
-    var word = button.querySelector('span'), text = next === 'dark' ? 'Dark' : 'Light';
+    var word = button.querySelector('.now'), ghost = button.querySelector('.ghost');
+    var text = next === 'dark' ? 'Dark' : 'Light';
     // Значок — луна, если переключит в тёмную, и солнце, если в светлую: CSS по `data-next`.
     button.dataset.next = next;
     if (word.textContent !== text) {
+      ghost.textContent = word.textContent;
       word.textContent = text;
-      word.classList.remove('swap');
-      void word.offsetWidth;
-      word.classList.add('swap');
+      [word, ghost].forEach(function (n) {
+        n.classList.remove('swap');
+        void n.offsetWidth;
+        n.classList.add('swap');
+      });
     }
     button.setAttribute('aria-label', 'Switch to the ' + next + ' theme');
   }
