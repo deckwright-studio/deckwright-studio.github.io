@@ -84,19 +84,32 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
 .theme{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 12px;
   border:1px solid var(--pen);border-radius:999px;background:var(--well);color:var(--ink);
   font:700 15px/1 "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
-.theme svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
-  stroke-linecap:round;stroke-linejoin:round}
-.theme[hidden],.theme svg[hidden]{display:none}
+.theme span{display:inline-block;min-width:2.6em}
+.theme .icon{width:18px;height:18px;overflow:visible}
+.theme .disc{transform-origin:12px 12px;transition:transform .3s cubic-bezier(.65,0,.35,1)}
+.theme .cut{transition:transform .3s cubic-bezier(.65,0,.35,1)}
+.theme .rays{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;
+  transform-origin:12px 12px;transition:transform .26s ease-out .06s,opacity .2s ease-out .06s}
+.theme[data-next=dark] .disc{transform:scale(1.75)}
+.theme[data-next=dark] .cut{transform:translate(-9px,7px)}
+.theme[data-next=dark] .rays{transform:rotate(-45deg) scale(.5);opacity:0;
+  transition:transform .18s ease-in,opacity .15s ease-in}
+@keyframes theme-word{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.theme span.swap{animation:theme-word .18s ease-out}
+.theme.is-pressed{background:var(--pill);color:var(--pill-ink);border-color:var(--pill);
+  transition-duration:.08s}
+.theme[hidden]{display:none}
 a{transition:text-decoration-thickness .15s ease-out}
-.play span,.theme{transition:background-color .15s ease-out,color .15s ease-out,
-  border-color .15s ease-out}
+.play span,.theme{transition:background-color .2s ease-out,color .2s ease-out,
+  border-color .2s ease-out}
 @media (hover:hover) and (pointer:fine){
   a:hover{text-decoration-thickness:2px}
   .play:hover span{background:var(--pill-hover)}
   .theme:hover{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}
-  a,.play span,.theme,html.theme-fade,html.theme-fade *{transition:none}}
+  a,.play span,.theme,.theme *,html.theme-fade,html.theme-fade *{transition:none!important}
+  .theme span.swap{animation:none}}
 @media print{:root:not([data-theme=none]){--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--step:#F2C14E;--step-ink:#1B1B1F}.theme{display:none!important}}
 </style>
 </head>
@@ -104,7 +117,7 @@ a{transition:text-decoration-thickness .15s ease-out}
 <div class="page">
 <header class="top"><a class="mark" href="./">Deckwright Studio</a>
 <div class="top-right">
-<button class="theme" type="button" hidden><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="sun" viewBox="0 0 24 24" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Dark</span></button>
+<button class="theme" type="button" data-next="dark" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><mask id="theme-cut"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="26" cy="0" r="6" fill="#000"/></mask><g mask="url(#theme-cut)"><circle class="disc" cx="12" cy="12" r="5" fill="currentColor"/></g><path class="rays" d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><span>Dark</span></button>
 <a href="mailto:deckwright.studio@gmail.com">Write to us</a></div></header>
 <main>
 <section class="hero">
@@ -172,14 +185,37 @@ document.addEventListener('click', function (event) {
   function current() { return root.dataset.theme || (dark.matches ? 'dark' : 'light'); }
   function label() {
     var next = current() === 'dark' ? 'light' : 'dark';
-    button.querySelector('span').textContent = next === 'dark' ? 'Dark' : 'Light';
-    // У SVG свойства `hidden` нет — только атрибут (05.11: луна стояла рядом с «Light»).
-    button.querySelector('.moon').toggleAttribute('hidden', next !== 'dark');
-    button.querySelector('.sun').toggleAttribute('hidden', next !== 'light');
+    var word = button.querySelector('span'), text = next === 'dark' ? 'Dark' : 'Light';
+    // Значок — луна, если переключит в тёмную, и солнце, если в светлую: CSS по `data-next`.
+    button.dataset.next = next;
+    if (word.textContent !== text) {
+      word.textContent = text;
+      word.classList.remove('swap');
+      void word.offsetWidth;
+      word.classList.add('swap');
+    }
     button.setAttribute('aria-label', 'Switch to the ' + next + ' theme');
   }
   button.hidden = false;
   label();
+  // ОТКЛИК НАЖАТИЯ — и пальцу, и мыши: заливка приходит за 0.08 с, уходит за 0.2 с. Быстрый тап
+  // отпускается раньше первого кадра, и заливки не было бы видно вовсе — она держится не
+  // меньше 0.12 с от касания.
+  var pressedAt = 0, letGo = 0;
+  function press() {
+    clearTimeout(letGo);
+    pressedAt = performance.now();
+    button.classList.add('is-pressed');
+  }
+  function release() {
+    var wait = Math.max(0, 120 - (performance.now() - pressedAt));
+    clearTimeout(letGo);
+    letGo = setTimeout(function () { button.classList.remove('is-pressed'); }, wait);
+  }
+  button.addEventListener('pointerdown', press);
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (type) {
+    button.addEventListener(type, release);
+  });
   if (dark.addEventListener) { dark.addEventListener('change', label); }
   button.addEventListener('click', function () {
     var next = current() === 'dark' ? 'light' : 'dark';
