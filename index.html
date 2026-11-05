@@ -24,8 +24,11 @@
 :root{--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--step:#F2C14E;--step-ink:#1B1B1F;--measure:68ch;--gutter:clamp(20px,4vw,56px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#1B1B1F;--ink:#EDEDEF;--slate:#A9A9B2;--rule:#34343B;--pen:#F2C14E;--well:#26262C;--link:#EDEDEF;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#FFD36B;--step:#F2C14E;--step-ink:#1B1B1F}}
 :root[data-theme=dark]{--paper:#1B1B1F;--ink:#EDEDEF;--slate:#A9A9B2;--rule:#34343B;--pen:#F2C14E;--well:#26262C;--link:#EDEDEF;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#FFD36B;--step:#F2C14E;--step-ink:#1B1B1F}
-html.theme-fade,html.theme-fade *{transition:background-color .2s ease,color .2s ease,
-  border-color .2s ease,text-decoration-color .2s ease}
+/* Кнопка темы и всё в ней — мимо общего перехода: её нажатие (0.08 с) приходит в тот же миг,
+   что смена темы, и общие 0.2 с перебивали отклик — заливка не успевала налиться (05.11, общий
+   прогон); у лучей значка своё превращение, и общее правило его гасило. */
+html.theme-fade,html.theme-fade *:not(.theme, .theme *){transition:background-color .2s ease,
+  color .2s ease,border-color .2s ease,text-decoration-color .2s ease}
 *{box-sizing:border-box}
 html{background:var(--paper);color:var(--ink);-webkit-text-size-adjust:100%}
 body{margin:0;font:400 17px/1.6 "IBM Plex Sans",system-ui,sans-serif}
@@ -86,7 +89,6 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
   font:700 15px/1 "IBM Plex Sans",system-ui,sans-serif;cursor:pointer}
 .theme .word{display:inline-grid;min-width:2.6em}
 .theme .word > span{grid-area:1/1}
-.theme .word .ghost{opacity:0}
 .theme .icon{width:18px;height:18px;overflow:visible}
 /* Превращение (05.11, второй заход): медленнее и одной мягкой кривой у всех трёх частей —
    лучи гасли втрое быстрее, чем рос диск, и пропадали посреди хода (замер по кадрам). */
@@ -99,12 +101,22 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
 .theme[data-next=dark] .cut{transform:translate(-9px,7px)}
 .theme[data-next=dark] .rays{transform:rotate(-45deg) scale(.5);opacity:0;
   transition:transform var(--morph),opacity var(--morph)}
-/* Слово меняется, как надпись у «Deg» в калькуляторе (выбор заказчика 09.10 там же; здесь —
-   заказчик 05.11): новое выезжает слева на полкегля за 0.35 с, прежнее гаснет на месте. */
-@keyframes theme-word-in{from{opacity:0;transform:translateX(-.5em)}}
-@keyframes theme-word-out{from{opacity:1}to{opacity:0}}
-.theme .word .now.swap{animation:theme-word-in .35s ease both}
-.theme .word .ghost.swap{animation:theme-word-out .35s ease both}
+/* СЛОВО ПЕРЕЛИСТЫВАЕТСЯ ПО БУКВАМ (заказчик 05.11, вариант «А» из двух черновиков): буквы
+   прежнего слова по очереди уходят за край, нового — приходят с другой стороны, как табло.
+   Появилось солнце («Light») — вверх, «солнце встаёт»; луна («Dark») — вниз, «заходит».
+   Две строки лежат друг на друге, каждая со своими промежутками: в одной ячейке на пару букв
+   промежутки менялись бы посреди хода, а в конце слово вставало бы рывком (черновик 05.11).
+   Буквы уходят и приходят за край окошка слова, а не висят над кнопкой. */
+.theme .flip{--dir:1;display:inline-grid;pointer-events:none;overflow:hidden;
+  margin:-.15em 0;padding:.15em 0}
+.theme .flip.down{--dir:-1}
+.theme .flip > span{grid-area:1/1;white-space:pre}
+.theme .flip i{display:inline-block;font-style:normal}
+@keyframes letter-out{to{transform:translateY(calc(var(--dir) * -.8em));opacity:0}}
+@keyframes letter-in{from{transform:translateY(calc(var(--dir) * .8em));opacity:0}}
+.theme .flip .out i{animation:letter-out .2s cubic-bezier(.5,0,.75,0) both}
+.theme .flip .in i{animation:letter-in .32s cubic-bezier(.2,.8,.2,1) both}
+.theme.flipping .word .now{visibility:hidden}
 .theme.is-pressed{background:var(--pill);color:var(--pill-ink);border-color:var(--pill);
   transition-duration:.08s}
 .theme[hidden]{display:none}
@@ -118,7 +130,7 @@ a{transition:text-decoration-thickness .15s ease-out}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}
   a,.play span,.theme,.theme *,html.theme-fade,html.theme-fade *{transition:none!important}
-  .theme .word .now.swap,.theme .word .ghost.swap{animation:none}}
+  .theme .flip{display:none}.theme.flipping .word .now{visibility:visible}}
 @media print{:root:not([data-theme=none]){--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--step:#F2C14E;--step-ink:#1B1B1F}.theme{display:none!important}}
 </style>
 </head>
@@ -127,8 +139,7 @@ a{transition:text-decoration-thickness .15s ease-out}
 <header class="top"><a class="mark" href="./">Deckwright Studio</a>
 <div class="top-right">
 <button class="theme" type="button" data-next="dark" hidden><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><mask id="theme-cut"><rect width="24" height="24" fill="#fff"/><circle class="cut" cx="26" cy="0" r="6" fill="#000"/></mask><g mask="url(#theme-cut)"><circle class="disc" cx="12" cy="12" r="5" fill="currentColor"/></g><path class="rays" d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
-<span class="word"><span class="now">Dark</span>
-<span class="ghost" aria-hidden="true"></span></span></button>
+<span class="word"><span class="now">Dark</span></span></button>
 <a href="mailto:deckwright.studio@gmail.com">Write to us</a></div></header>
 <main>
 <section class="hero">
@@ -192,40 +203,75 @@ document.addEventListener('click', function (event) {
   if (!button) { return; }
   var dark = window.matchMedia('(prefers-color-scheme: dark)');
   var still = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var timer = 0;
+  var timer = 0, ready = false, flipDone = 0;
+  // Две строки букв поверх слова: прежнее уходит, новое приходит по очереди слева направо.
+  function flip(from, to, way) {
+    var box = button.querySelector('.word'), old = box.querySelector('.flip');
+    if (old) { old.remove(); }
+    var rows = document.createElement('span');
+    rows.className = 'flip' + (way === 'down' ? ' down' : '');
+    rows.setAttribute('aria-hidden', 'true');
+    [[from, 'out', 0], [to, 'in', 120]].forEach(function (part) {
+      var row = document.createElement('span');
+      row.className = part[1];
+      for (var i = 0; i < part[0].length; i += 1) {
+        var letter = document.createElement('i');
+        letter.textContent = part[0][i];
+        letter.style.animationDelay = (part[2] + i * 30) + 'ms';
+        row.appendChild(letter);
+      }
+      rows.appendChild(row);
+    });
+    box.appendChild(rows);
+    button.classList.add('flipping');
+    clearTimeout(flipDone);
+    flipDone = setTimeout(function () {
+      rows.remove();
+      button.classList.remove('flipping');
+    }, 120 + to.length * 30 + 360);
+  }
   function current() { return root.dataset.theme || (dark.matches ? 'dark' : 'light'); }
   function label() {
     var next = current() === 'dark' ? 'light' : 'dark';
-    var word = button.querySelector('.now'), ghost = button.querySelector('.ghost');
-    var text = next === 'dark' ? 'Dark' : 'Light';
+    var word = button.querySelector('.now'), text = next === 'dark' ? 'Dark' : 'Light';
     // Значок — луна, если переключит в тёмную, и солнце, если в светлую: CSS по `data-next`.
     button.dataset.next = next;
     if (word.textContent !== text) {
-      ghost.textContent = word.textContent;
+      var from = word.textContent;
       word.textContent = text;
-      [word, ghost].forEach(function (n) {
-        n.classList.remove('swap');
-        void n.offsetWidth;
-        n.classList.add('swap');
-      });
+      // При загрузке слово ставится без хода: перелистывание отвечает на нажатие.
+      if (ready && !still.matches) { flip(from, text, next === 'light' ? 'up' : 'down'); }
     }
     button.setAttribute('aria-label', 'Switch to the ' + next + ' theme');
   }
   button.hidden = false;
   label();
+  ready = true;
   // ОТКЛИК НАЖАТИЯ — и пальцу, и мыши: заливка приходит за 0.08 с, уходит за 0.2 с. Быстрый тап
-  // отпускается раньше первого кадра, и заливки не было бы видно вовсе — она держится не
-  // меньше 0.12 с от касания.
-  var pressedAt = 0, letGo = 0;
+  // отпускается раньше, чем браузер нарисует кадр, и заливки не было бы видно вовсе. Поэтому
+  // она держится 0.2 с (налиться и постоять) от того кадра, где её НАРИСОВАЛИ, а не от касания:
+  // на занятом браузере между касанием и кадром проходит десятая доля секунды (замер 05.11).
+  var shownAt = 0, letGo = 0, pressId = 0;
   function press() {
     clearTimeout(letGo);
-    pressedAt = performance.now();
+    var id = pressId += 1;
+    shownAt = 0;
     button.classList.add('is-pressed');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { if (id === pressId) { shownAt = performance.now(); } });
+    });
   }
   function release() {
-    var wait = Math.max(0, 120 - (performance.now() - pressedAt));
-    clearTimeout(letGo);
-    letGo = setTimeout(function () { button.classList.remove('is-pressed'); }, wait);
+    var id = pressId;
+    (function wait() {
+      if (id !== pressId) { return; }
+      if (!shownAt) { requestAnimationFrame(wait); return; }
+      var rest = Math.max(0, 200 - (performance.now() - shownAt));
+      clearTimeout(letGo);
+      letGo = setTimeout(function () {
+        if (id === pressId) { button.classList.remove('is-pressed'); }
+      }, rest);
+    })();
   }
   button.addEventListener('pointerdown', press);
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (type) {
