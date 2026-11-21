@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deckwright Studio: presentation decks built from your material</title>
-<meta name="description" content="Presentation decks for businesses in the US. Five decks to open and watch.">
+<meta name="description" content="Presentation decks for businesses and nonprofits in the US. Five decks to open and watch.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://deckwright-studio.github.io/">
 <meta property="og:title" content="Deckwright Studio: presentation decks built from your material">
-<meta property="og:description" content="Presentation decks for businesses in the US. Five decks to open and watch.">
+<meta property="og:description" content="Presentation decks for businesses and nonprofits in the US. Five decks to open and watch.">
 <meta property="og:image" content="https://deckwright-studio.github.io/decks/hero.jpg">
 <meta property="og:image:width" content="1600">
 <meta property="og:image:height" content="900">
@@ -24,9 +24,6 @@
 :root{--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A;--measure:68ch;--gutter:clamp(20px,4vw,56px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#1B1B1F;--ink:#EDEDEF;--slate:#A9A9B2;--rule:#34343B;--pen:#F2C14E;--well:#26262C;--link:#EDEDEF;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#FFD36B}}
 :root[data-theme=dark]{--paper:#1B1B1F;--ink:#EDEDEF;--slate:#A9A9B2;--rule:#34343B;--pen:#F2C14E;--well:#26262C;--link:#EDEDEF;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#FFD36B}
-/* Кнопка темы и всё в ней — мимо общего перехода: её нажатие (0.08 с) приходит в тот же миг,
-   что смена темы, и общие 0.2 с перебивали отклик — заливка не успевала налиться (05.11, общий
-   прогон); у лучей значка своё превращение, и общее правило его гасило. */
 html.theme-fade,html.theme-fade *:not(.theme, .theme *){transition:background-color .2s ease,
   color .2s ease,border-color .2s ease,text-decoration-color .2s ease}
 *{box-sizing:border-box}
@@ -54,10 +51,11 @@ h1{font:700 clamp(36px,5.2vw,64px)/1.05 "Playfair Display",Georgia,serif;letter-
 .play svg{width:18px;height:18px;fill:currentColor}
 @media (max-width:760px){.play span{padding:8px 14px 8px 11px;font-size:14px;gap:7px}
   .play svg{width:14px;height:14px}}
+.play.is-leaving{pointer-events:none}
+.play.is-leaving span{opacity:0;transform:scale(.9);transition:opacity 0.28s ease,
+  transform 0.28s ease}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
   gap:clamp(24px,4vw,64px);align-items:start;margin:32px 0 0}
-/* Стопка (пачка 13.11): карточка стоит в своём «месте» --s (0 — сзади, 4 — впереди), место
-   задаёт сдвиг transform в долях самой карточки: 11 % и 13 % ширины стопки. */
 .fan{position:relative;aspect-ratio:1.2/1}
 .fan a{position:absolute;left:0;top:0;width:56%;aspect-ratio:16/9;border:1px solid var(--rule);
   border-radius:8px;overflow:hidden;background:var(--well);z-index:var(--s);
@@ -106,8 +104,6 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
 .theme .word{display:inline-grid;min-width:2.6em}
 .theme .word > span{grid-area:1/1}
 .theme .icon{width:18px;height:18px;overflow:visible}
-/* Превращение (05.11, второй заход): медленнее и одной мягкой кривой у всех трёх частей —
-   лучи гасли втрое быстрее, чем рос диск, и пропадали посреди хода (замер по кадрам). */
 .theme{--morph:.55s cubic-bezier(.37,0,.63,1)}
 .theme .disc{transform-origin:12px 12px;transition:transform var(--morph)}
 .theme .cut{transition:transform var(--morph)}
@@ -117,12 +113,6 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
 .theme[data-next=dark] .cut{transform:translate(-9px,7px)}
 .theme[data-next=dark] .rays{transform:rotate(-45deg) scale(.5);opacity:0;
   transition:transform var(--morph),opacity var(--morph)}
-/* СЛОВО ПЕРЕЛИСТЫВАЕТСЯ ПО БУКВАМ (заказчик 05.11, вариант «А» из двух черновиков): буквы
-   прежнего слова по очереди уходят за край, нового — приходят с другой стороны, как табло.
-   Появилось солнце («Light») — вверх, «солнце встаёт»; луна («Dark») — вниз, «заходит».
-   Две строки лежат друг на друге, каждая со своими промежутками: в одной ячейке на пару букв
-   промежутки менялись бы посреди хода, а в конце слово вставало бы рывком (черновик 05.11).
-   Буквы уходят и приходят за край окошка слова, а не висят над кнопкой. */
 .theme .flip{--dir:1;display:inline-grid;pointer-events:none;overflow:hidden;
   margin:-.15em 0;padding:.15em 0}
 .theme .flip.down{--dir:-1}
@@ -149,6 +139,24 @@ a{transition:text-decoration-thickness .15s ease-out}
   a,.play span,.theme,.theme *,html.theme-fade,html.theme-fade *{transition:none!important}
   .theme .flip{display:none}.theme.flipping .word .now{visibility:visible}}
 @media print{:root:not([data-theme=none]){--paper:#F6F6F4;--ink:#1B1B1F;--slate:#5E5E66;--rule:#DDDCD8;--pen:#8A6510;--well:#E9E8E4;--link:#1B1B1F;--underline:#F2C14E;--pill:#F2C14E;--pill-ink:#1B1B1F;--pill-hover:#E5B23A}.theme{display:none!important}}
+html[data-wheel] .fan a{visibility:hidden}
+.fan .reel,.fan .freeze,.fan .cover{position:absolute;max-width:none;display:block}
+.fan .cover{z-index:0;pointer-events:none}
+.fan .reel{cursor:pointer;opacity:0;z-index:1}
+.fan .reel.is-on{opacity:1}
+.fan .reel.is-top{z-index:2}
+.fan .freeze{opacity:0;z-index:3;pointer-events:none;transition:opacity .4s cubic-bezier(.4,0,.2,1)}
+.index a{transition:color .5s ease-in-out,border-color .5s ease-in-out}
+.fan .reel-play{position:absolute;right:0;top:0;z-index:4;display:inline-flex;align-items:center;gap:8px;
+  font:600 15px/1 "IBM Plex Sans",system-ui,sans-serif;padding:10px 16px 10px 13px;border:0;border-radius:999px;
+  background:var(--pill);color:var(--pill-ink);cursor:pointer}
+.fan .reel-play:hover{background:var(--pill-hover)}
+.fan .reel-play svg{width:12px;height:12px;display:block}
+.fan .reel-play{transition:opacity 0.28s ease,transform 0.28s ease,background-color .15s ease}
+.fan .reel-play[hidden]{display:inline-flex;opacity:0;transform:scale(.9);visibility:hidden;pointer-events:none;
+  transition:opacity 0.28s ease,transform 0.28s ease,visibility 0s 0.28s}
+html[data-hover-a] .index a{transition:color .18s ease-out,border-color .18s ease-out}
+@media (prefers-reduced-motion:reduce){.fan .freeze,.fan .reel-play{transition:none!important}}
 </style>
 </head>
 <body>
@@ -161,8 +169,9 @@ a{transition:text-decoration-thickness .15s ease-out}
 <main>
 <section class="hero">
 <h1>Presentation decks built from your material</h1>
-<div class="hero-grid"><div class="fan"><a href="#margo" data-deck="margo" style="--s:0" tabindex="-1" aria-hidden="true"><img src="decks/margo.jpg" alt=""></a><a href="#ledgerline" data-deck="ledgerline" style="--s:1" tabindex="-1" aria-hidden="true"><img src="decks/ledgerline.jpg" alt=""></a><a href="#riverbend" data-deck="riverbend" style="--s:2" tabindex="-1" aria-hidden="true"><img src="decks/riverbend.jpg" alt=""></a><a href="#tallgrass" data-deck="tallgrass" style="--s:3" tabindex="-1" aria-hidden="true"><img src="decks/tallgrass.jpg" alt=""></a><a href="#deckwright" data-deck="deckwright" style="--s:4" tabindex="-1" aria-hidden="true"><img src="decks/deckwright.jpg" alt=""></a></div><div class="index"><p class="lead">
-We make investor pitches, sales decks and reports for businesses in the US.
+<div class="hero-grid"><div class="fan"><a href="#margo" data-deck="margo" style="--s:0" tabindex="-1" aria-hidden="true"><img src="decks/margo.jpg" srcset="decks/margo-400.jpg 400w, decks/margo-640.jpg 640w, decks/margo-960.jpg 960w, decks/margo.jpg 1600w" sizes="(max-width: 760px) calc(56vw - 22px), (max-width: 1180px) calc(31vw - 20px), 313px" alt=""></a><a href="#ledgerline" data-deck="ledgerline" style="--s:1" tabindex="-1" aria-hidden="true"><img src="decks/ledgerline.jpg" srcset="decks/ledgerline-400.jpg 400w, decks/ledgerline-640.jpg 640w, decks/ledgerline-960.jpg 960w, decks/ledgerline.jpg 1600w" sizes="(max-width: 760px) calc(56vw - 22px), (max-width: 1180px) calc(31vw - 20px), 313px" alt=""></a><a href="#riverbend" data-deck="riverbend" style="--s:2" tabindex="-1" aria-hidden="true"><img src="decks/riverbend.jpg" srcset="decks/riverbend-400.jpg 400w, decks/riverbend-640.jpg 640w, decks/riverbend-960.jpg 960w, decks/riverbend.jpg 1600w" sizes="(max-width: 760px) calc(56vw - 22px), (max-width: 1180px) calc(31vw - 20px), 313px" alt=""></a><a href="#tallgrass" data-deck="tallgrass" style="--s:3" tabindex="-1" aria-hidden="true"><img src="decks/tallgrass.jpg" srcset="decks/tallgrass-400.jpg 400w, decks/tallgrass-640.jpg 640w, decks/tallgrass-960.jpg 960w, decks/tallgrass.jpg 1600w" sizes="(max-width: 760px) calc(56vw - 22px), (max-width: 1180px) calc(31vw - 20px), 313px" alt=""></a><a href="#deckwright" data-deck="deckwright" style="--s:4" tabindex="-1" aria-hidden="true"><img src="decks/deckwright.jpg" srcset="decks/deckwright-400.jpg 400w, decks/deckwright-640.jpg 640w, decks/deckwright-960.jpg 960w, decks/deckwright.jpg 1600w" sizes="(max-width: 760px) calc(56vw - 22px), (max-width: 1180px) calc(31vw - 20px), 313px" alt=""></a></div><div class="index"><p class="lead">
+We make presentations for businesses and nonprofits in the US: investor pitches, sales
+decks, reports, conference talks and course slides.
 Below are five of our decks. Three are samples for made-up companies, one is a real
 project, and one is about us. Open any of them in your browser, just as your audience
 would.</p><ul><li><a href="#deckwright" data-deck="deckwright"><span class="t">About Deckwright Studio</span><span class="k">Studio deck</span></a></li><li><a href="#tallgrass" data-deck="tallgrass"><span class="t">Tallgrass Robotics</span><span class="k">Investor pitch</span></a></li><li><a href="#riverbend" data-deck="riverbend"><span class="t">Riverbend Literacy Project</span><span class="k">Donor impact report</span></a></li><li><a href="#ledgerline" data-deck="ledgerline"><span class="t">Ledgerline</span><span class="k">Sales deck</span></a></li><li><a href="#margo" data-deck="margo"><span class="t">Land the Interview</span><span class="k">Course promo</span></a></li></ul></div></div>
@@ -175,7 +184,7 @@ images come from that client's material.</p>
 nothing to download. Clients also get a PowerPoint file, which we don't post on this page.
 A client receives the web version as a file, and that file works without an internet
 connection.</p>
-<article class="deck" id="deckwright"><div class="frame" id="frame-deckwright"><img src="decks/deckwright.jpg" alt="A slide from About Deckwright Studio"><button class="play" type="button" data-video="decks/deckwright.mp4" data-frame="frame-deckwright" aria-label="Play the video of About Deckwright Studio"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Studio deck</p><h3>About Deckwright Studio</h3><p class="what">How we work, what it costs, and how we compare with Gamma, freelancers and agencies.</p><p class="whose">Our own deck.</p><ul class="actions"><li><a href="decks/deckwright.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/deckwright.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="tallgrass"><div class="frame" id="frame-tallgrass"><img src="decks/tallgrass.jpg" alt="A slide from Tallgrass Robotics"><button class="play" type="button" data-video="decks/tallgrass.mp4" data-frame="frame-tallgrass" aria-label="Play the video of Tallgrass Robotics"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Investor pitch</p><h3>Tallgrass Robotics</h3><p class="what">A Series A pitch with revenue by quarter, unit numbers and where the money goes.</p><p class="whose">Sample deck: the company and its figures are made up.</p><ul class="actions"><li><a href="decks/tallgrass.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/tallgrass.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="riverbend"><div class="frame" id="frame-riverbend"><img src="decks/riverbend.jpg" alt="A slide from Riverbend Literacy Project"><button class="play" type="button" data-video="decks/riverbend.mp4" data-frame="frame-riverbend" aria-label="Play the video of Riverbend Literacy Project"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Donor impact report</p><h3>Riverbend Literacy Project</h3><p class="what">A school year of tutoring results for a donor breakfast.</p><p class="whose">Sample deck: the organization and its figures are made up.</p><ul class="actions"><li><a href="decks/riverbend.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/riverbend.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="ledgerline"><div class="frame" id="frame-ledgerline"><img src="decks/ledgerline.jpg" alt="A slide from Ledgerline"><button class="play" type="button" data-video="decks/ledgerline.mp4" data-frame="frame-ledgerline" aria-label="Play the video of Ledgerline"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Sales deck</p><h3>Ledgerline</h3><p class="what">Accounts payable software, pitched to CFOs at manufacturers on a first call.</p><p class="whose">Sample deck: the company and its figures are made up.</p><ul class="actions"><li><a href="decks/ledgerline.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/ledgerline.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="margo"><div class="frame" id="frame-margo"><img src="decks/margo.jpg" alt="A slide from Land the Interview"><button class="play" type="button" data-video="decks/margo.mp4" data-frame="frame-margo" aria-label="Play the video of Land the Interview"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Course promo</p><h3>Land the Interview</h3><p class="what">An English e-book for IT professionals, written by a practicing tutor.</p><p class="whose">Real project: a deck for a published e-book, shown with the author&#39;s permission.</p><ul class="actions"><li><a href="decks/margo.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/margo.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article>
+<article class="deck" id="deckwright"><div class="frame" id="frame-deckwright"><img src="decks/deckwright.jpg" srcset="decks/deckwright-400.jpg 400w, decks/deckwright-640.jpg 640w, decks/deckwright-960.jpg 960w, decks/deckwright.jpg 1600w" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1180px) calc(55vw - 40px), 600px" alt="A slide from About Deckwright Studio"><button class="play" type="button" data-video="decks/deckwright.mp4" data-frame="frame-deckwright" aria-label="Play the video of About Deckwright Studio"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Studio deck</p><h3>About Deckwright Studio</h3><p class="what">How we work, what it costs, and how we compare with Gamma, freelancers and agencies.</p><p class="whose">Our own deck.</p><ul class="actions"><li><a href="decks/deckwright.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/deckwright.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="tallgrass"><div class="frame" id="frame-tallgrass"><img src="decks/tallgrass.jpg" srcset="decks/tallgrass-400.jpg 400w, decks/tallgrass-640.jpg 640w, decks/tallgrass-960.jpg 960w, decks/tallgrass.jpg 1600w" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1180px) calc(55vw - 40px), 600px" alt="A slide from Tallgrass Robotics"><button class="play" type="button" data-video="decks/tallgrass.mp4" data-frame="frame-tallgrass" aria-label="Play the video of Tallgrass Robotics"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Investor pitch</p><h3>Tallgrass Robotics</h3><p class="what">A Series A pitch with revenue by quarter, unit numbers and where the money goes.</p><p class="whose">Sample deck: the company and its figures are made up.</p><ul class="actions"><li><a href="decks/tallgrass.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/tallgrass.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="riverbend"><div class="frame" id="frame-riverbend"><img src="decks/riverbend.jpg" srcset="decks/riverbend-400.jpg 400w, decks/riverbend-640.jpg 640w, decks/riverbend-960.jpg 960w, decks/riverbend.jpg 1600w" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1180px) calc(55vw - 40px), 600px" alt="A slide from Riverbend Literacy Project"><button class="play" type="button" data-video="decks/riverbend.mp4" data-frame="frame-riverbend" aria-label="Play the video of Riverbend Literacy Project"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Donor impact report</p><h3>Riverbend Literacy Project</h3><p class="what">A school year of tutoring results for a donor breakfast.</p><p class="whose">Sample deck: the organization and its figures are made up.</p><ul class="actions"><li><a href="decks/riverbend.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/riverbend.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="ledgerline"><div class="frame" id="frame-ledgerline"><img src="decks/ledgerline.jpg" srcset="decks/ledgerline-400.jpg 400w, decks/ledgerline-640.jpg 640w, decks/ledgerline-960.jpg 960w, decks/ledgerline.jpg 1600w" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1180px) calc(55vw - 40px), 600px" alt="A slide from Ledgerline"><button class="play" type="button" data-video="decks/ledgerline.mp4" data-frame="frame-ledgerline" aria-label="Play the video of Ledgerline"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Sales deck</p><h3>Ledgerline</h3><p class="what">Accounts payable software, pitched to CFOs at manufacturers on a first call.</p><p class="whose">Sample deck: the company and its figures are made up.</p><ul class="actions"><li><a href="decks/ledgerline.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/ledgerline.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article><article class="deck" id="margo"><div class="frame" id="frame-margo"><img src="decks/margo.jpg" srcset="decks/margo-400.jpg 400w, decks/margo-640.jpg 640w, decks/margo-960.jpg 960w, decks/margo.jpg 1600w" sizes="(max-width: 760px) calc(100vw - 40px), (max-width: 1180px) calc(55vw - 40px), 600px" alt="A slide from Land the Interview"><button class="play" type="button" data-video="decks/margo.mp4" data-frame="frame-margo" aria-label="Play the video of Land the Interview"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>Play the video</span></button></div><div><p class="kind">Course promo</p><h3>Land the Interview</h3><p class="what">An English e-book for IT professionals, written by a practicing tutor.</p><p class="whose">Real project: a deck for a published e-book, shown with the author&#39;s permission.</p><ul class="actions"><li><a href="decks/margo.html" target="_blank" rel="noopener">Open the web version</a></li><li><a href="decks/margo.pdf" target="_blank" rel="noopener">Open the PDF</a></li></ul></div></article>
 </section>
 <section class="how">
 <h2>How it works</h2>
@@ -204,15 +213,34 @@ document.addEventListener('click', function (event) {
   if (!button) { return; }
   var frame = document.getElementById(button.getAttribute('data-frame'));
   var playing = frame.querySelector('video');
-  if (playing) { playing.play(); playing.focus(); return; }
+  if (playing) { playing.focus(); return; }
   var video = document.createElement('video');
   video.src = button.getAttribute('data-video');
   video.poster = frame.querySelector('img').src;
-  video.controls = true;
   video.playsInline = true;
-  frame.replaceChildren(video);
-  video.play();
-  video.focus();
+  video.style.background = 'transparent';
+  video.style.opacity = '0';
+  frame.insertBefore(video, button);
+  var first = video.play();
+  if (first && first.catch) { first.catch(function () {}); }
+  video.pause();
+  button.classList.add('is-leaving');
+  setTimeout(function () {
+    button.remove();
+    video.controls = true;
+    video.focus();
+    var shown = false;
+    function appear() {
+      if (shown) { return; }
+      shown = true;
+      var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      video.style.transition = calm ? 'none' : 'opacity .3s ease-out';
+      video.style.opacity = '1';
+    }
+    video.addEventListener('playing', appear, {once: true});
+    setTimeout(appear, 1500);
+    video.play();
+  }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 280);
 });
 
 (function () {
@@ -221,7 +249,6 @@ document.addEventListener('click', function (event) {
   var dark = window.matchMedia('(prefers-color-scheme: dark)');
   var still = window.matchMedia('(prefers-reduced-motion: reduce)');
   var timer = 0, ready = false, flipDone = 0;
-  // Две строки букв поверх слова: прежнее уходит, новое приходит по очереди слева направо.
   function flip(from, to, way) {
     var box = button.querySelector('.word'), old = box.querySelector('.flip');
     if (old) { old.remove(); }
@@ -251,12 +278,10 @@ document.addEventListener('click', function (event) {
   function label() {
     var next = current() === 'dark' ? 'light' : 'dark';
     var word = button.querySelector('.now'), text = next === 'dark' ? 'Dark' : 'Light';
-    // Значок — луна, если переключит в тёмную, и солнце, если в светлую: CSS по `data-next`.
     button.dataset.next = next;
     if (word.textContent !== text) {
       var from = word.textContent;
       word.textContent = text;
-      // При загрузке слово ставится без хода: перелистывание отвечает на нажатие.
       if (ready && !still.matches) { flip(from, text, next === 'light' ? 'up' : 'down'); }
     }
     button.setAttribute('aria-label', 'Switch to the ' + next + ' theme');
@@ -264,10 +289,6 @@ document.addEventListener('click', function (event) {
   button.hidden = false;
   label();
   ready = true;
-  // ОТКЛИК НАЖАТИЯ — и пальцу, и мыши: заливка приходит за 0.08 с, уходит за 0.2 с. Быстрый тап
-  // отпускается раньше, чем браузер нарисует кадр, и заливки не было бы видно вовсе. Поэтому
-  // она держится 0.2 с (налиться и постоять) от того кадра, где её НАРИСОВАЛИ, а не от касания:
-  // на занятом браузере между касанием и кадром проходит десятая доля секунды (замер 05.11).
   var shownAt = 0, letGo = 0, pressId = 0;
   function press() {
     clearTimeout(letGo);
@@ -308,117 +329,6 @@ document.addEventListener('click', function (event) {
   });
 })();
 
-(function () {
-  var fan = document.querySelector('.fan');
-  if (!fan) { return; }
-  var cards = Array.prototype.slice.call(fan.querySelectorAll('a'));
-  var items = Array.prototype.slice.call(document.querySelectorAll('.index a'));
-  var hero = document.querySelector('.hero-grid');
-  var still = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var n = cards.length, f = n - 1, goal = n - 1, speed = 0, last = 0, running = false;
-  var frame = 1 / 60;
-  var held = false, settledAt = performance.now();
-  var ghosts = cards.map(function (card) {
-    var ghost = card.cloneNode(true);
-    ghost.removeAttribute('data-deck');
-    ghost.setAttribute('data-ghost', '');
-    fan.insertBefore(ghost, fan.firstChild);
-    return ghost;
-  });
-  // Шаг места в пикселях — из размера карточки (та же доля, что в CSS: 19.64 % и 41.27 %).
-  // Сдвиг ставится готовыми пикселями, а не переменной CSS: Firefox (LibreWolf заказчика,
-  // 13.11) пересчитывал calc(var()) у десяти элементов каждый кадр, и ход дёргался
-  // (hand_film --engine firefox: 11 дёргов; Chrome — 0).
-  var stepX = 0, stepY = 0;
-  function measure() {
-    stepX = cards[0].offsetWidth * 0.1964;
-    stepY = cards[0].offsetHeight * 0.4127;
-  }
-  function put(el, s, alpha, z) {
-    el.style.transform = 'translate(' + (s * stepX).toFixed(2) + 'px,' +
-      (s * stepY).toFixed(2) + 'px)';
-    el.style.opacity = alpha.toFixed(3);
-    el.style.zIndex = z;
-    el.style.visibility = alpha > 0.002 ? 'visible' : 'hidden';
-  }
-  function draw() {
-    cards.forEach(function (card, i) {
-      var d = ((f - i) % n + n) % n, s = n - 1 - d;
-      if (s >= 0) {
-        put(card, s, 1, String(Math.floor(s) + 1));
-        put(ghosts[i], -1, 0, '0');
-        return;
-      }
-      var u = s + 1;
-      put(card, n - 1 + u, Math.max(0, 1 - 2 * u), '20');
-      put(ghosts[i], u - 1, Math.max(0, 2 * u - 1), '0');
-    });
-  }
-  function front() { return ((Math.round(goal) % n) + n) % n; }
-  function mark() {
-    var deck = cards[front()].getAttribute('data-deck');
-    items.forEach(function (item) {
-      item.classList.toggle('is-front', item.getAttribute('data-deck') === deck);
-    });
-  }
-  // Пружина без перерегулирования: время выхода на место около 0.9 с на одно место.
-  function tick(now) {
-    // Длительность кадра — сглаженная, а не каждый отсчёт часов: LibreWolf заказчика (защита
-    // от слежки `resistFingerprinting`) огрубляет часы до 16.67 мс, и каждый восьмой кадр
-    // «длится» 0 мс, а следующий 33 — колесо стояло кадр и прыгало на двойной шаг (видео
-    // 13.11). Экран рисует кадры ровно, поэтому среднее и есть настоящий шаг. Предел — от
-    // вкладки, вернувшейся из фона.
-    frame += 0.15 * (Math.min(0.1, Math.max(0, (now - last) / 1000)) - frame);
-    var dt = frame;
-    last = now;
-    var w = 7;
-    speed += (w * w * (goal - f) - 2 * w * speed) * dt;
-    f += speed * dt;
-    // Хвост пружины бесконечен: последние полсекунды карточка ползла меньше пикселя за
-    // кадр, и Firefox рисовал это ступеньками. Ближе трети пикселя — сразу на место.
-    if (Math.abs(goal - f) < 0.0025 && Math.abs(speed) < 0.02) {
-      f = goal; speed = 0; running = false; settledAt = now; draw(); return;
-    }
-    draw();
-    requestAnimationFrame(tick);
-  }
-  function aim(target) {
-    goal = target;
-    mark();
-    if (still.matches) { f = goal; speed = 0; draw(); return; }
-    if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); }
-  }
-  function show(deck) {
-    for (var i = 0; i < n; i += 1) {
-      if (cards[i].getAttribute('data-deck') === deck) {
-        aim(i + n * Math.round((goal - i) / n));
-      }
-    }
-  }
-  setInterval(function () {
-    if (held || running || document.hidden || performance.now() - settledAt < 1500) { return; }
-    aim(goal - 1);
-  }, 500);
-  items.forEach(function (item) {
-    item.addEventListener('pointerenter', function (event) {
-      if (event.pointerType === 'mouse') { show(item.getAttribute('data-deck')); }
-    });
-    item.addEventListener('focus', function () { show(item.getAttribute('data-deck')); });
-  });
-  hero.addEventListener('pointerenter', function (event) {
-    if (event.pointerType === 'mouse') { held = true; }
-  });
-  hero.addEventListener('pointerleave', function () {
-    held = false;
-    settledAt = performance.now();
-  });
-  hero.addEventListener('focusin', function () { held = true; });
-  hero.addEventListener('focusout', function () { held = false; });
-  measure();
-  window.addEventListener('resize', function () { measure(); draw(); });
-  draw();
-  mark();
-})();
 document.addEventListener('copy', function (event) {
   var picked = document.getSelection();
   if (!picked || picked.isCollapsed || !event.clipboardData) { return; }
@@ -523,6 +433,387 @@ document.addEventListener('copy', function (event) {
   event.clipboardData.setData('text/html', paper.innerHTML);
   event.preventDefault();
 });
-</script>
+(function () {
+  var fan = document.querySelector('.fan');
+  if (!fan) { return; }
+  var META = {"fps": 60, "rest": 114, "move": 54, "margin": 28, "decks": ["margo", "ledgerline", "riverbend", "tallgrass", "deckwright"], "card": [424, 240, 8], "step": [34, 56], "curve": [0.0136, 0.0375, 0.0689, 0.1056, 0.146, 0.1885, 0.2322, 0.2761, 0.3196, 0.3623, 0.4036, 0.4435, 0.4816, 0.5179, 0.5522, 0.5847, 0.6152, 0.6439, 0.6707, 0.6957, 0.719, 0.7408, 0.7609, 0.7797, 0.797, 0.8131, 0.8279, 0.8417, 0.8544, 0.8665, 0.8781, 0.8891, 0.8996, 0.9095, 0.9189, 0.9278, 0.9361, 0.9438, 0.9511, 0.9578, 0.9639, 0.9696, 0.9747, 0.9793, 0.9834, 0.9869, 0.99, 0.9927, 0.9948, 0.9965, 0.9978, 0.9987, 0.9993, 1.0], "width": 616, "height": 522, "fan": [560, 467], "alpha": "wheel/wheel.webm", "baked": "wheel/wheel-NAME.mp4", "still": "wheel/wheel.png"};
+  var items = Array.prototype.slice.call(document.querySelectorAll('.index a'));
+  var hero = document.querySelector('.hero-grid'), root = document.documentElement;
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var dark = window.matchMedia('(prefers-color-scheme: dark)');
+  var n = META.decks.length, seg = (META.rest + META.move) / META.fps;
+  var APPLE = /Apple/.test(navigator.vendor || '');
+  var ALPHA = !APPLE;
+  root.dataset.wheel = ALPHA ? 'alpha' : 'baked';
+  var held = false, shown = '', waiting = false, blocked = false, lastRest = -1;
+  function theme() { return root.dataset.theme || (dark.matches ? 'dark' : 'light'); }
+  function make(name) {
+    var v = document.createElement('video');
+    v.className = 'reel';
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+    v.setAttribute('aria-hidden', 'true');
+    v.dataset.src = ALPHA ? META.alpha : META.baked.replace('NAME', name);
+    fan.appendChild(v);
+    if (v.requestVideoFrameCallback) {
+      v.requestVideoFrameCallback(function tick(now, frame) { v.shownAt = frame.mediaTime; v.requestVideoFrameCallback(tick); });
+    }
+    return v;
+  }
+  var reels = ALPHA ? (function (v) { return {dark: v, light: v}; })(make('alpha')) : {dark: make('dark'), light: make('light')};
+  var freeze = document.createElement('canvas');
+  freeze.className = 'freeze';
+  freeze.width = META.width; freeze.height = META.height;
+  fan.appendChild(freeze);
+  var play = document.createElement('button');
+  play.type = 'button';
+  play.className = 'reel-play';
+  play.hidden = true;
+  play.innerHTML = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg>Play';
+  fan.appendChild(play);
+  var cover = new Image(), ready = false;
+  cover.className = 'cover';
+  cover.alt = '';
+  cover.setAttribute('aria-hidden', 'true');
+  cover.src = META.still;
+  fan.appendChild(cover);
+  function shownOnce() {
+    if (ready) { return; }
+    ready = true;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      cover.remove();
+      if (want) { turn(); }
+    }); });
+  }
+  function state(no) { no = no && !video.error; blocked = no; play.hidden = !no; root.dataset.reel = no ? 'blocked' : 'playing'; }
+  var name = theme(), video = reels[name];
+  function other() { return reels[name === 'dark' ? 'light' : 'dark']; }
+  function load(v) { if (!v.getAttribute('src')) { v.src = v.dataset.src; } }
+  function resting(t) { return t - Math.floor(t / seg) * seg < META.rest / META.fps; }
+  function deckAt(t) {
+    var k = Math.floor(t / seg) % n, inside = t - Math.floor(t / seg) * seg;
+    if (inside > META.rest / META.fps) { k = (k + 1) % n; }
+    return META.decks[n - 1 - k];
+  }
+  function restTime(deck) {
+    var from = (n - 1 - META.decks.indexOf(deck)) * seg;
+    return from + 0.5 / META.fps;
+  }
+  function mark(deck) {
+    if (deck === shown) { return; }
+    shown = deck;
+    items.forEach(function (item) {
+      item.classList.toggle('is-front', item.getAttribute('data-deck') === deck);
+    });
+  }
+  function follow(t) {
+    var v = other();
+    if (v === video) { return; }
+    if (v.getAttribute('src') && v.readyState > 0 && Math.abs(v.currentTime - t) > 0.05) { v.currentTime = t; }
+  }
+  function refused(error) { if (error && error.name === 'NotAllowedError') { state(true); } }
+  function go() {
+    if (held || still.matches || stage !== 'idle') { return; }
+    video.play().then(function () { state(false); }, refused);
+  }
+  play.addEventListener('click', function (event) {
+    event.stopPropagation();
+    held = false;
+    video.play().then(function () { state(false); }, refused);
+  });
+  setInterval(function () {
+    if (!blocked || held || still.matches || waiting || document.hidden) { return; }
+    video.play().then(function () { state(false); }, function () {
+      show(META.decks[(META.decks.indexOf(shown) + n - 1) % n]);
+    });
+  }, seg * 1000);
+  function place() {
+    var dpr = window.devicePixelRatio || 1, box = fan.getBoundingClientRect();
+    var scale = Math.abs(fan.clientWidth - META.fan[0]) <= 12 ? 1 : fan.clientWidth / META.fan[0];
+    var w = META.width * scale, h = META.height * scale;
+    var left = (fan.clientWidth - w) / 2, top = -META.margin * scale;
+    left = Math.round((box.left + left) * dpr) / dpr - box.left;
+    top = Math.round((box.top + top) * dpr) / dpr - box.top;
+    [reels.dark, reels.light, freeze, cover].concat(twin ? [twin] : []).forEach(function (el) {
+      el.style.width = w + 'px'; el.style.height = h + 'px';
+      el.style.left = left + 'px'; el.style.top = top + 'px';
+    });
+  }
+  function thaw() {
+    waiting = false;
+    void freeze.offsetWidth;
+    freeze.style.transition = '';
+    freeze.style.opacity = '0';
+    fading = true;
+    setTimeout(function () { fading = false; turn(); }, still.matches ? 0 : 420);
+  }
+  function seeked() { if (!twin && this === video && waiting && !armed && !video.seeking) { thaw(); } }
+  reels.dark.addEventListener('seeked', seeked);
+  reels.light.addEventListener('seeked', seeked);
+  var want = '', dwell = 0, fading = false, armed = false, aim = 0;
+  var twin = ALPHA ? make('alpha') : null, stage = 'idle', fadeTimer = 0;
+  function moving() {
+    var t = video.currentTime;
+    return (t - Math.floor(t / seg) * seg) * META.fps - META.rest > 0;
+  }
+  function settle() {
+    stage = 'settle'; waiting = true;
+    var asked = video.play();
+    if (asked && asked.catch) { asked.catch(function () {}); }
+    (function wait() {
+      if (moving() && !video.paused) { requestAnimationFrame(wait); return; }
+      video.pause();
+      var landed = Math.round(video.currentTime / seg) * seg + 0.03;
+      video.currentTime = landed > video.duration - 0.05 ? 0.03 : landed;
+      stage = 'idle'; waiting = false;
+      if (want && deckAt(video.currentTime) === want) { mark(want); want = ''; }
+      if (want) { turn(); return; }
+      mark(deckAt(video.currentTime));
+      go();
+    })();
+  }
+  function leave() {
+    stage = 'fade';
+    if (still.matches) { endFade(); return; }
+    fadeTo('0', 0.4, endFade);
+  }
+  function seekTwin() {
+    aim = restTime(want);
+    mark(want);
+    want = '';
+    twin.currentTime = aim;
+  }
+  function fadeTo(value, seconds, then) {
+    var now = getComputedStyle(video).opacity;
+    clearTimeout(fadeTimer);
+    video.style.transition = 'none'; video.style.opacity = now;
+    void video.offsetWidth;
+    video.style.transition = still.matches ? 'none' :
+      'opacity ' + seconds + 's ' + (seconds < 0.3 ? 'linear' : 'cubic-bezier(.4,0,.2,1)');
+    video.style.opacity = value;
+    fadeTimer = setTimeout(then, still.matches ? 0 : seconds * 1000 + 20);
+  }
+  function endFade() {
+    var old = video;
+    old.pause();
+    old.classList.remove('is-on', 'is-top');
+    old.style.transition = ''; old.style.opacity = '';
+    video = twin; twin = old;
+    video.classList.add('is-top');
+    reels.dark = reels.light = video;
+    stage = 'idle'; waiting = false;
+    if (want) { turn(); return; }
+    mark(deckAt(video.currentTime));
+    go();
+  }
+  function twinSeeked() {
+    if (this !== twin || stage !== 'seek' || twin.seeking) { return; }
+    var at = aim;
+    twin.classList.add('is-on');
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      if (stage !== 'seek' || aim !== at || twin.seeking) { return; }
+      if (want) { turn(); return; }
+      leave();
+    }); });
+  }
+  if (twin) {
+    [twin, video].forEach(function (v) {
+      v.addEventListener('seeked', twinSeeked);
+      v.addEventListener('seeked', carried);
+    });
+  }
+  function turnTwin() {
+    if (stage === 'idle') {
+      if (moving() && !still.matches) { settle(); return; }
+      video.pause();
+      if (Math.abs(video.currentTime - restTime(want)) < 0.02) { mark(want); want = ''; return; }
+      stage = 'seek'; waiting = true;
+      load(twin);
+      if (twin.readyState > 0) { seekTwin(); }
+      else { twin.addEventListener('loadedmetadata', turn, {once: true}); }
+    } else if (stage === 'seek') {
+      if (twin.readyState > 0) { seekTwin(); }
+    } else if (stage === 'fade') {
+      if (restTime(want) === aim) { mark(want); want = ''; return; }
+      if (parseFloat(getComputedStyle(video).opacity) > 0.5) {
+        stage = 'back';
+        fadeTo('1', 0.1, function () {
+          video.style.transition = ''; video.style.opacity = '';
+          stage = 'seek';
+          if (want) { seekTwin(); } else { leave(); }
+        });
+      } else {
+        var now = getComputedStyle(video).opacity;
+        clearTimeout(fadeTimer);
+        video.style.transition = 'none'; video.style.opacity = now;
+        stage = 'carry';
+        carry();
+      }
+    } else if (stage === 'carry') {
+      carry();
+    }
+  }
+  function carry() {
+    aim = restTime(want);
+    mark(want);
+    want = '';
+    video.currentTime = aim;
+  }
+  function carried() {
+    if (this !== video || stage !== 'carry' || video.seeking) { return; }
+    var at = aim;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      if (stage !== 'carry' || aim !== at || video.seeking) { return; }
+      if (want) { turn(); return; }
+      stage = 'carry-in';
+      fadeTo('1', 0.3, function () {
+        twin.classList.remove('is-on');
+        video.style.transition = ''; video.style.opacity = '';
+        stage = 'idle'; waiting = false;
+        if (want) { turn(); return; }
+        mark(deckAt(video.currentTime));
+        go();
+      });
+    }); });
+  }
+  function seekNow() {
+    if (!armed) { return; }
+    armed = false;
+    video.currentTime = aim;
+  }
+  function turn() {
+    if (!want || !ready) { return; }
+    if (twin) { turnTwin(); return; }
+    if (waiting || fading) { return; }
+    var deck = want, target = restTime(deck);
+    want = '';
+    mark(deck);
+    video.pause();
+    follow(target);
+    if (Math.abs(video.currentTime - target) < 0.02) { return; }
+    try {
+      var pen = freeze.getContext('2d');
+      pen.clearRect(0, 0, META.width, META.height);
+      pen.drawImage(video, 0, 0, META.width, META.height);
+    } catch (e) {}
+    freeze.style.transition = 'none';
+    freeze.style.opacity = still.matches ? '0' : '1';
+    waiting = true; aim = target; armed = true;
+    requestAnimationFrame(function () { requestAnimationFrame(seekNow); });
+    setTimeout(seekNow, 150);
+  }
+  function show(deck) { want = deck; turn(); }
+  function ask(deck) {
+    want = deck;
+    root.setAttribute('data-hover-a', '');
+    mark(deck);
+    clearTimeout(dwell);
+    dwell = setTimeout(turn, 45);
+  }
+  function drop() {
+    clearTimeout(dwell);
+    want = '';
+    root.removeAttribute('data-hover-a');
+    if (!waiting) { mark(deckAt(video.currentTime)); }
+  }
+  function outline(t, el) {
+    var frames = (t - Math.floor(t / seg) * seg) * META.fps - META.rest, e = 0;
+    if (frames > 0) { e = META.curve[Math.min(META.curve.length - 1, Math.floor(frames))]; }
+    var k = el.clientWidth / META.width, cut = e ? 1 : 0, slots = [], path = '';
+    for (var s = 0; s < n - 1; s += 1) { slots.push(s + e); }
+    if (e < 0.125) { slots.push(n - 1 + e); }
+    if (e > 0.875) { slots.push(e - 1); }
+    slots.forEach(function (slot) {
+      var x = (META.margin + slot * META.step[0] + cut) * k, y = (META.margin + slot * META.step[1] + cut) * k;
+      var w = (META.card[0] - 2 * cut) * k, h = (META.card[1] - 2 * cut) * k, r = META.card[2] * k;
+      var arc = ' A ' + r + ' ' + r + ' 0 0 1 ';
+      path += 'M ' + (x + r) + ' ' + y + ' H ' + (x + w - r) + arc + (x + w) + ' ' + (y + r) + ' V ' + (y + h - r) +
+        arc + (x + w - r) + ' ' + (y + h) + ' H ' + (x + r) + arc + x + ' ' + (y + h - r) + ' V ' + (y + r) +
+        arc + (x + r) + ' ' + y + ' Z ';
+    });
+    return 'path("' + path + '")';
+  }
+  var themeTimer = 0, visible = video, resume = false;
+  function retheme() {
+    var want = theme();
+    if (want === name) { return; }
+    if (ALPHA) { name = want; return; }
+    var to = reels[want], at = visible.paused || visible.shownAt === undefined ? visible.currentTime : visible.shownAt + 0.004;
+    load(to);
+    name = want; video = to;
+    resume = resume || !visible.paused;
+    visible.pause();
+    visible.style.clipPath = outline(at, visible);
+    if (!resting(at)) {
+      var was = visible;
+      at = (Math.floor(at * META.fps) + 0.5) / META.fps;
+      was.addEventListener('seeked', function exact() {
+        was.removeEventListener('seeked', exact);
+        if (visible === was && video === to && was.style.clipPath) { was.style.clipPath = outline(at, was); }
+      });
+      was.currentTime = at;
+    }
+    clearTimeout(themeTimer);
+    function swap() {
+      if (video !== to) { return; }
+      if (visible !== to) { visible.classList.remove('is-on', 'is-top'); }
+      reels.dark.style.clipPath = reels.light.style.clipPath = '';
+      to.classList.add('is-on', 'is-top');
+      visible = to;
+      if (resume) { resume = false; go(); }
+    }
+    themeTimer = setTimeout(function () {
+      if (visible === to) { swap(); return; }
+      var same = Math.floor(to.currentTime / seg) === Math.floor(at / seg) && resting(to.currentTime) && resting(at);
+      if (to.readyState > 1 && (same || Math.abs(to.currentTime - at) < 0.02)) { swap(); return; }
+      to.addEventListener('seeked', function done() { to.removeEventListener('seeked', done); swap(); });
+      if (to.readyState > 0) { to.currentTime = at; } else {
+        to.addEventListener('loadedmetadata', function () { to.currentTime = at; }, {once: true});
+      }
+    }, still.matches ? 0 : 260);
+  }
+  (function watch() {
+    if (!waiting && !video.paused && !want) {
+      var t = video.currentTime, k = Math.floor(t / seg);
+      mark(deckAt(t));
+      if (resting(t) && k !== lastRest) { lastRest = k; follow(k * seg % (n * seg) + 0.25); }
+      if (held && resting(t)) { video.pause(); }
+    }
+    requestAnimationFrame(watch);
+  })();
+  items.forEach(function (item) {
+    item.addEventListener('pointerenter', function (event) {
+      if (event.pointerType === 'mouse') { ask(item.getAttribute('data-deck')); }
+    });
+    item.addEventListener('focus', function () { show(item.getAttribute('data-deck')); });
+  });
+  [document.querySelector('.index ul'), reels.dark, reels.light].concat(twin ? [twin] : []).forEach(function (el) {
+    el.addEventListener('pointerenter', function (event) {
+      if (event.pointerType === 'mouse') { held = true; }
+    });
+    el.addEventListener('pointerleave', function () { held = false; drop(); go(); });
+  });
+  hero.addEventListener('focusin', function () { held = true; });
+  hero.addEventListener('focusout', function () { held = false; go(); });
+  hero.addEventListener('click', function (event) {
+    var link = event.target.closest('a[href^="#"]');
+    var deck = document.getElementById(link ? link.getAttribute('href').slice(1) : event.target === video ? shown : '');
+    if (!deck) { return; }
+    event.preventDefault();
+    deck.scrollIntoView({behavior: still.matches ? 'auto' : 'smooth', block: 'start'});
+    deck.setAttribute('tabindex', '-1');
+    deck.focus({preventScroll: true});
+  });
+  new MutationObserver(retheme).observe(root, {attributes: true, attributeFilter: ['data-theme']});
+  if (dark.addEventListener) { dark.addEventListener('change', retheme); }
+  window.addEventListener('resize', place);
+  place();
+  load(video);
+  video.classList.add('is-on', 'is-top');
+  if (video.requestVideoFrameCallback) { video.requestVideoFrameCallback(shownOnce); }
+  video.addEventListener('loadeddata', function () { setTimeout(shownOnce, 300); }, {once: true});
+  video.addEventListener('canplaythrough', function () { load(other()); if (twin) { load(twin); } }, {once: true});
+  go();
+  mark(deckAt(0));
+})();</script>
 </body>
 </html>
