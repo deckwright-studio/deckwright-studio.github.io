@@ -32,6 +32,7 @@ body{margin:0;font:400 17px/1.6 "IBM Plex Sans",system-ui,sans-serif}
 a{color:var(--link);text-underline-offset:.2em;text-decoration-thickness:1px;
   text-decoration-color:var(--underline)}
 :focus-visible{outline:3px solid var(--pen);outline-offset:3px;border-radius:2px}
+.deck:focus,.deck:focus-visible{outline:none}
 .page{max-width:1180px;margin:0 auto;padding:0 var(--gutter)}
 .top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:28px 0 0}
 .mark{font:700 22px/1 "Playfair Display",Georgia,serif;letter-spacing:-.01em;color:var(--ink);
@@ -128,10 +129,22 @@ footer{color:var(--slate);font-size:14px;padding:0 0 40px}
   transition-duration:.08s}
 .theme[hidden]{display:none}
 a{transition:text-decoration-thickness .15s ease-out}
+@property --more{syntax:'<color>';inherits:false;initial-value:transparent}
+@supports (top:round(1.2em,1px)){
+  a{text-decoration:none;--under:1.19em;transition:--more .18s ease-out;
+    background:linear-gradient(var(--underline),var(--underline)) 0 round(var(--under),1px)
+        /100% 1px no-repeat,
+      linear-gradient(var(--more),var(--more)) 0 calc(round(var(--under),1px) + 1px)
+        /100% 1px no-repeat}
+  .top-right a{--under:1.3em}
+  .reach a{--under:1.36em}
+  .mark,.index a{background:none}
+  @media print{a{background:none;text-decoration:underline}}
+}
 .play span,.theme{transition:background-color .2s ease-out,color .2s ease-out,
   border-color .2s ease-out}
 @media (hover:hover) and (pointer:fine){
-  a:hover{text-decoration-thickness:2px}
+  a:hover{text-decoration-thickness:2px;--more:var(--underline)}
   .play:hover span{background:var(--pill-hover)}
   .index a:hover{color:var(--ink)}
   .theme:hover{background:var(--pill);color:var(--pill-ink);border-color:var(--pill)}
