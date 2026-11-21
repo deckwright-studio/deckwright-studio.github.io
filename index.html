@@ -229,7 +229,11 @@ document.addEventListener('click', function (event) {
     button.remove();
     function bar() { video.controls = true; }
     if (window.matchMedia('(hover: none)').matches) {
-      video.addEventListener('click', bar, {once: true});
+      video.addEventListener('timeupdate', function going() {
+        if (video.paused || video.currentTime < 0.5) { return; }
+        video.removeEventListener('timeupdate', going);
+        bar();
+      });
     } else {
       bar();
       video.focus();
