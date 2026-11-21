@@ -419,6 +419,110 @@ document.addEventListener('click', function (event) {
   draw();
   mark();
 })();
+document.addEventListener('copy', function (event) {
+  var picked = document.getSelection();
+  if (!picked || picked.isCollapsed || !event.clipboardData) { return; }
+  function each(root, what, act) {
+    Array.prototype.forEach.call(root.querySelectorAll(what), act);
+  }
+  function address(link) {
+    var href = link.getAttribute('href');
+    if (href.charAt(0) === '#') { return ''; }
+    if (href.indexOf('mailto:') === 0) { return href.slice(7).split('?')[0]; }
+    return new URL(href, 'https://deckwright-studio.github.io/').href;
+  }
+  function beside(item, side) {
+    var next = item[side];
+    while (next && next.nodeType === 3 && !next.data.trim()) { next = next[side]; }
+    return next;
+  }
+  var box = document.createElement('div');
+  var cores = [];
+  for (var i = 0; i < picked.rangeCount; i++) {
+    var range = picked.getRangeAt(i);
+    var piece = range.cloneContents();
+    each(piece, 'img', function (image) {
+      var stand = document.createElement('span');
+      stand.setAttribute('data-image', image.getAttribute('src') || '');
+      stand.setAttribute('data-alt', image.getAttribute('alt') || '');
+      image.removeAttribute('srcset');
+      image.removeAttribute('src');
+      image.parentNode.replaceChild(stand, image);
+    });
+    each(piece, 'video', function (video) {
+      video.removeAttribute('src');
+      video.removeAttribute('poster');
+      video.parentNode.removeChild(video);
+    });
+    var node = range.commonAncestorContainer;
+    node = node.nodeType === 1 ? node : node.parentNode;
+    var link = node.closest('a[href]');
+    var core = document.createElement('span');
+    core.style.display = 'contents';
+    if (!link) { core.appendChild(piece); piece = core; }
+    while (node && node !== document.body && node.nodeType === 1) {
+      var shell = node.cloneNode(false);
+      shell.removeAttribute('id');
+      shell.appendChild(piece);
+      piece = shell;
+      if (node === link) { core.appendChild(piece); piece = core; }
+      node = node.parentNode;
+    }
+    cores.push(core);
+    box.appendChild(piece);
+  }
+  each(box, 'script,style,button,svg,[hidden],[aria-hidden="true"]', function (extra) {
+    extra.parentNode.removeChild(extra);
+  });
+  var notes = [];
+  each(box, 'a[href]', function (link) {
+    var where = address(link);
+    var shown = link.textContent.replace(/\s+/g, ' ').trim();
+    if (!where || !shown || shown === where) { return; }
+    notes.push([link, where]);
+  });
+  if (!notes.length) { return; }
+  box.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;pointer-events:none';
+  box.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(box);
+  var breaks = [];
+  function split(item, before) {
+    var mark = document.createElement('br');
+    item.parentNode.insertBefore(mark, before ? item : item.nextSibling);
+    breaks.push(mark);
+  }
+  cores.forEach(function (core) {
+    each(core, 'a,span', function (item) {
+      var display = getComputedStyle(item).display;
+      if (item.hasAttribute('data-image') || display.indexOf('inline') === 0) { return; }
+      if (display === 'contents' || display === 'none') { return; }
+      var left = beside(item, 'previousSibling');
+      if (left && breaks.indexOf(left) < 0) { split(item, true); }
+      if (beside(item, 'nextSibling')) { split(item, false); }
+    });
+  });
+  var rich = cores.map(function (core) { return core.innerHTML; }).join('');
+  breaks.forEach(function (mark) { mark.parentNode.removeChild(mark); });
+  notes.forEach(function (note) {
+    note[0].appendChild(document.createTextNode(' (' + note[1] + ')'));
+  });
+  var text = box.innerText.replace(/\n{3,}/g, '\n\n');
+  document.body.removeChild(box);
+  var paper = document.createElement('template');
+  paper.innerHTML = rich;
+  each(paper.content, 'a[href]', function (link) {
+    link.setAttribute('href', new URL(link.getAttribute('href'), 'https://deckwright-studio.github.io/').href);
+  });
+  each(paper.content, '[data-image]', function (stand) {
+    var image = paper.content.ownerDocument.createElement('img');
+    image.setAttribute('src', new URL(stand.getAttribute('data-image'), 'https://deckwright-studio.github.io/').href);
+    image.setAttribute('alt', stand.getAttribute('data-alt'));
+    stand.parentNode.replaceChild(image, stand);
+  });
+  event.clipboardData.setData('text/plain', text);
+  event.clipboardData.setData('text/html', paper.innerHTML);
+  event.preventDefault();
+});
 </script>
 </body>
 </html>
