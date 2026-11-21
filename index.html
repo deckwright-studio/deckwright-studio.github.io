@@ -452,7 +452,8 @@ document.addEventListener('copy', function (event) {
   var dark = window.matchMedia('(prefers-color-scheme: dark)');
   var n = META.decks.length, seg = (META.rest + META.move) / META.fps;
   var APPLE = /Apple/.test(navigator.vendor || '');
-  var ALPHA = !APPLE;
+  var SOFT = /Android/.test(navigator.userAgent) && /Firefox\//.test(navigator.userAgent);
+  var ALPHA = !APPLE && !SOFT;
   root.dataset.wheel = ALPHA ? 'alpha' : 'baked';
   var SHARP = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
   function sized(name) { return SHARP > 1 ? name.replace(/(\.[a-z0-9]+)$/, META.sharp + '$1') : name; }
